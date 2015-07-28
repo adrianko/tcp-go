@@ -1,6 +1,7 @@
 package main
 
 import (
+    "io"
     "log"
     "net"
     "strconv"
@@ -20,12 +21,27 @@ func check(err error) {
 }
 
 func handle(conn net.Conn) {
-    buf := make([]byte, 1024)
-    _, err := conn.Read(buf)
+    buf := make([]byte, 0, 4096)
+    tmp := make([]byte, 1)
 
-    if err != nil {
-        log.Printf("Error: %s", err.Error())
+    for {
+        n, err := conn.Read(tmp)
+        
+        if err != nil {
+            if err != io.EOF {
+                log.Printf("Error: %s", err)
+            }
+        }
+
+        buf = append(buf, tmp[:n]...)
     }
+
+    //buf := make([]byte, 1024)
+    //_, err := conn.Read(buf)
+
+    //if err != nil {
+    //    log.Printf("Error: %s", err.Error())
+    //}
 
     log.Printf("Recieved: %s", buf)
     body := "<h1>Hello World</h1>"
