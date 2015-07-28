@@ -1,8 +1,6 @@
 package main
 
 import (
-    "bytes"
-    "io"
     "log"
     "net"
     "strconv"
@@ -22,9 +20,13 @@ func check(err error) {
 }
 
 func handle(conn net.Conn) {
-    log.Printf("handle")
-    var buf bytes.Buffer
-    io.Copy(&buf, conn)
+    buf := make([]byte, 1024)
+    _, err := conn.Read(buf)
+
+    if err != nil {
+        log.Printf("Error: %s", err.Error())
+    }
+
     log.Printf("Recieved: %s", buf)
     body := "<h1>Hello World</h1>"
     response := "HTTP/1.1 200 OK\n"
